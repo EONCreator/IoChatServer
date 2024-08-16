@@ -11,3 +11,9 @@ This project is the server part of the IoChat application.
   <li>JWT</li>
   <li>ImageSharp</li>
 </ul>
+
+<h3>Installing</h3>
+```git
+git init
+git clone https://github.com/EONCreator/IoChatServer.git
+```
