@@ -2,6 +2,9 @@
 
 This project is the server part of the IoChat application.
 
+<h3>Demo</h3>
+http://217.171.146.249/
+
 <h3>Technology stack</h3>
 <ul>
   <li>ASP.NET Core (8.0)</li>
