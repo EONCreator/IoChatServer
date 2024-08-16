@@ -16,8 +16,15 @@ http://217.171.146.249/
 </ul>
 
 <h3>Installing</h3>
+<h1>Requirements</h1>
+<ul>
+  <li>.NET Core 8.0</li>
+  <li>PostgreSQL 16.2</li>
+</ul>
 
 ```git
 git init
 git clone https://github.com/EONCreator/IoChatServer.git
+cd IoChatServer
+dotnet IoChatServer.dll
 ```
