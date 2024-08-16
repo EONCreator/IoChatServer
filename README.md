@@ -1,6 +1,6 @@
 <h1>IoChat</h1>
 
-This project is the server part of the IoChat application.
+This project is the server part of the IoChat application. It is written in ASP.NET Core. This project uses the CQRS template which is implemented using the MediatR library.
 
 <h3>Demo</h3>
 http://217.171.146.249/
