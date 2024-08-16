@@ -14,7 +14,7 @@ This project is the server part of the IoChat application.
 
 <h3>Installing</h3>
 
-```
+```git
 git init
 git clone https://github.com/EONCreator/IoChatServer.git
 ```
