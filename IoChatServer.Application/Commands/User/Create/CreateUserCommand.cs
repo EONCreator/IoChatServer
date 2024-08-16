@@ -1,6 +1,5 @@
-using IoChatServer.Application.Commands.User.CreateUserCommand.User;
-using IoChatServer.Services.User;
 using MediatR;
+using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.User.CreateUserCommand;
 

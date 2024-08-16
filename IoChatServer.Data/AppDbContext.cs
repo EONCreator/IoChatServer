@@ -1,8 +1,7 @@
-using IoChatServer.Domain.Entities;
-using IoChatServer.Domain.Repositories;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using IoChatServer.Domain.Entities;
+using IoChatServer.Domain.Repositories;
 
 namespace IoChatServer.Data;
 

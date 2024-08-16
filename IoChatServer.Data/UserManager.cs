@@ -1,7 +1,7 @@
-using IoChatServer.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using IoChatServer.Domain.Entities;
 
 namespace IoChatServer.Data;
 

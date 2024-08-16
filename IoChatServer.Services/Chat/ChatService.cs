@@ -1,8 +1,7 @@
-using System.Collections;
+using Microsoft.EntityFrameworkCore;
 using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
 using IoChatServer.Services.User;
-using Microsoft.EntityFrameworkCore;
 
 namespace IoChatServer.Services.Chat;
 

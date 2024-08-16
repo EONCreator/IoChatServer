@@ -1,13 +1,10 @@
-using IoChatServer.Data;
+using MediatR;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using IoChatServer.Domain.Entities;
-using IoChatServer.Domain.Models.Authorization;
 using IoChatServer.Domain.Repositories;
 using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 
 namespace IoChatServer.Application.Commands.Messages.SendMessageCommand;
 

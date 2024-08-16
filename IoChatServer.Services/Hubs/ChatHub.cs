@@ -1,16 +1,10 @@
-using System.Collections;
-using System.Security.Claims;
-using IoChatServer.Domain.Entities;
-using IoChatServer.Domain.Repositories;
-using IoChatServer.Services.Chat;
-using IoChatServer.Services.ChatBub;
-using IoChatServer.Services.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
+using IoChatServer.Services.Chat;
+using IoChatServer.Services.ChatBub;
 
 namespace IoChatServer.Services.Hubs;
-using Microsoft.AspNetCore.SignalR;
 
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ChatHub : Hub

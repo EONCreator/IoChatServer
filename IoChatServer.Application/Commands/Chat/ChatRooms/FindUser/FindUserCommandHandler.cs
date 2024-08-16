@@ -1,10 +1,9 @@
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
 using IoChatServer.Services.Chat;
 using IoChatServer.Services.User;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace IoChatServer.Application.Commands.Chat.FindUser;
 
@@ -26,8 +25,6 @@ public class FindUserCommandHandler : IRequestHandler<FindUserCommand, FindUserR
     
     public async Task<FindUserResponse> Handle(FindUserCommand command, CancellationToken cancellationToken)
     {
-        var userId = _userService.GetCurrentUserId();
-        
         var user = await _repository.Entity<Domain.Entities.User>()
             .FirstOrDefaultAsync(u => u.UserName == command.UserName);
         

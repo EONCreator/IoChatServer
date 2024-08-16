@@ -1,11 +1,11 @@
-using System.Security.Claims;
-using IoChatServer.Domain.Models.Authorization;
-using IoChatServer.Services.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using IoChatServer.Domain.Models.Authorization;
+using IoChatServer.Services.Authorization;
 
 namespace IoChatServer.Services.User;
-using IoChatServer.Domain.Entities;
+
+using Domain.Entities;
 
 public interface IUserService
 {

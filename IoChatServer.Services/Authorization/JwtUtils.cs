@@ -1,13 +1,13 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using IoChatServer.Helpers;
 
 namespace IoChatServer.Services.Authorization;
 
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using IoChatServer.Domain.Entities;
+using Domain.Entities;
 
 public interface IJwtUtils
 {

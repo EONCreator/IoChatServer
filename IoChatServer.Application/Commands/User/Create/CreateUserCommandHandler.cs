@@ -1,8 +1,8 @@
-using IoChatServer.Application.Commands.User.CreateUserCommand.User;
-using IoChatServer.Domain.Models.Authorization;
-using IoChatServer.Services.User;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using IoChatServer.Domain.Models.Authorization;
+using IoChatServer.Services.User;
+
 using SignInResult = IoChatServer.Services.User.SignInResult;
 
 namespace IoChatServer.Application.Commands.User.CreateUserCommand;

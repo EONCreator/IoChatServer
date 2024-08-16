@@ -1,7 +1,6 @@
-using IoChatServer.Domain.Models.Authorization;
-using IoChatServer.Services.User;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.User.GetCurrentUser;
 

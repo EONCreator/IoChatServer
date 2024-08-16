@@ -1,11 +1,9 @@
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 using IoChatServer.Data;
-using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
 using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace IoChatServer.Application.Commands.Chat.GetChatRooms;
 

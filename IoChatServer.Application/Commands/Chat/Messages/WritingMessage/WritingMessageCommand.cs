@@ -1,5 +1,3 @@
-using IoChatServer.Domain.Entities;
-using IoChatServer.Services.ChatBub;
 using MediatR;
 
 namespace IoChatServer.Application.Commands.Messages.SendMessageCommand;

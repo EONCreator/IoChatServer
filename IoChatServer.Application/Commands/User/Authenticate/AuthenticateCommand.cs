@@ -1,5 +1,5 @@
-using IoChatServer.Services.User;
 using MediatR;
+using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.Authenticate.AuthenticateCommand;
 

@@ -1,5 +1,3 @@
-using IoChatServer.Domain.Entities;
-
 namespace IoChatServer.Application.Commands.Chat.GetChatRooms;
 
 public class ChatRoomUserModel
