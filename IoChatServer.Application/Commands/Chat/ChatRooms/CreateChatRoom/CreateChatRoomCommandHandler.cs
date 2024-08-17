@@ -8,6 +8,7 @@ using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.Chat.CreateChatRoom;
+using Domain.Entities;
 
 public class CreateChatRoomCommandHandler : IRequestHandler<CreateChatRoomCommand, CreateChatRoomResponse>
 {
@@ -39,13 +40,17 @@ public class CreateChatRoomCommandHandler : IRequestHandler<CreateChatRoomComman
 
         var chatRoom = new ChatRoom();
 
-        foreach (var id in command.Ids)
+        /*foreach (var id in command.Ids)
         {
-            var user = await _repository.Entity<Domain.Entities.User>()
+            var user = await _repository.Entity<User>()
                 .FirstOrDefaultAsync(u => u.Id.ToString() == id);
             
             chatRoom.Users.Add(user);
-        }
+        }*/
+        
+        chatRoom.Users.AddRange(_repository
+            .Entity<User>()
+            .Where(u => command.Ids.Contains(u.Id.ToString())));
 
         _repository.Entity<ChatRoom>().Add(chatRoom);
         await _repository.SaveChanges();

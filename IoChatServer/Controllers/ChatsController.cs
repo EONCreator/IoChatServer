@@ -10,6 +10,7 @@ using IoChatServer.Primitives;
 using IoChatServer.Application.Commands.Chat.CreateChatRoom;
 using IoChatServer.Application.Commands.Chat.FindUser;
 using IoChatServer.Application.Commands.Chat.GetChatRooms;
+using IoChatServer.Application.Commands.Chat.Messages.FindMessagesCommand;
 using IoChatServer.Application.Commands.Chat.Messages.GetMessagesCommand;
 using IoChatServer.Application.Commands.Messages.SendMessageCommand;
 
@@ -123,5 +124,16 @@ public class ChatsController : BaseController<ChatRoom>
         CancellationToken cancellationToken)
         => Ok(await _mediator.Send(new GetMessagesCommand(chatRoomId), cancellationToken));
 
+    /// <summary>
+    /// Find messages of chatroom which contains the specific text
+    /// </summary>
+    /// <param name="userName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<IActionResult> FindMessages(
+        [FromQuery] int chatRoomId, [FromQuery] string text,
+        CancellationToken cancellationToken)
+        => Ok(await _mediator.Send(new FindMessagesCommand(chatRoomId, text), cancellationToken));
 
 }

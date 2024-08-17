@@ -14,7 +14,9 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Sen
     private IHubContext<ChatHub> _chatHub;
     private IRepository _repository;
     
-    public SendMessageCommandHandler(IUserService userService, IHubContext<ChatHub> chatHub,
+    public SendMessageCommandHandler(
+        IUserService userService, 
+        IHubContext<ChatHub> chatHub,
         IRepository repository)
     {
         _userService = userService;

@@ -28,7 +28,7 @@ public class MessageModel
 
 public class GetMessagesResponse
 {
-    public List<MessageModel> Messages { get; set; }
+    public List<MessageModel> Messages { get; }
 
     public GetMessagesResponse(List<MessageModel> messages)
     {
