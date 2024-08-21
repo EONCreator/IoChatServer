@@ -30,8 +30,4 @@
       <ProjectReference Include="..\IoChatServer.Services\IoChatServer.Services.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Hubs\" />
-    </ItemGroup>
-
 </Project>

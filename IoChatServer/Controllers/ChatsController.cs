@@ -64,20 +64,6 @@ public class ChatsController : BaseController<ChatRoom>
                 cancellationToken)
         );
     }
-    
-    /// <summary>
-    /// Notification for users when user online
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpPost]
-    public async Task<IActionResult> NotifyForOnline(CancellationToken cancellationToken)
-        => Ok(
-            await _mediator.Send(
-                new NotifyForOnlineCommand(), 
-                cancellationToken)
-        );
-    
 
     /// <summary>
     /// Get chat rooms by current user

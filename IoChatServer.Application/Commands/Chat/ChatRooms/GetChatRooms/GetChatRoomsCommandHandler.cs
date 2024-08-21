@@ -1,23 +1,22 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using IoChatServer.Data;
 using IoChatServer.Domain.Repositories;
 using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.Chat.GetChatRooms;
 
+using Domain.Entities;
+
 public class GetChatRoomsCommandHandler : IRequestHandler<GetChatRoomsCommand, GetChatRoomsResponse>
 {
     private IRepository _repository;
     private IUserService _userService;
-    private AppDbContext _dbContext;
     
-    public GetChatRoomsCommandHandler(IRepository repository, IUserService userService, AppDbContext dbContext)
+    public GetChatRoomsCommandHandler(IRepository repository, IUserService userService)
     {
         _repository = repository;
         _userService = userService;
-        _dbContext = dbContext;
     }
     
     public async Task<GetChatRoomsResponse> Handle(GetChatRoomsCommand command, CancellationToken cancellationToken)
@@ -26,7 +25,7 @@ public class GetChatRoomsCommandHandler : IRequestHandler<GetChatRoomsCommand, G
         
         var response = new List<ChatRoomUserModel>();
 
-        var currentUser = await _dbContext.Users
+        var currentUser = await _repository.Entity<User>()
             .Include(u => u.ChatRooms)
             .ThenInclude(c => c.Users)
             .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
@@ -44,7 +43,14 @@ public class GetChatRoomsCommandHandler : IRequestHandler<GetChatRoomsCommand, G
                     Avatar = user.Avatar,
                     ChatRoomId = chatRoom.Id,
                     ChatRoomName = chatRoomName,
-                    LastMessage = "Последнее сообщение",
+                    
+                    LastMessage = _repository.Entity<Message>()
+                        .Where(m => m.ChatRoomId == chatRoom.Id).Count() != 0 
+                        
+                        ? _repository.Entity<Message>()
+                            .OrderByDescending(m => m.Date)
+                        .FirstOrDefault(m => m.ChatRoomId == chatRoom.Id).Text : "",
+                    
                     UnreadMessages = 0,
                     Online = ChatHub.Connections.GetConnections(user.Id.ToString()).Count() != 0
                 });

@@ -1,40 +1,24 @@
-using System.Text;
-using IoChatServer.Application.Commands.Authenticate.AuthenticateCommand;
-using IoChatServer.Application.Commands.Messages.SendMessageCommand;
-using IoChatServer.Application.Commands.User.CreateUserCommand;
-using IoChatServer.Application.Commands.User.GetCurrentUser;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+
 using IoChatServer.Data;
 using IoChatServer.Domain.Entities;
-using IoChatServer.Domain.Repositories;
+using IoChatServer.Extensions;
 using IoChatServer.Helpers;
 using IoChatServer.Services.Hubs;
 using IoChatServer.Services.Authorization;
 using IoChatServer.Services.Chat;
 using IoChatServer.Services.Images;
 using IoChatServer.Services.User;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 [assembly: ApiController]
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "MyPolicy",
-        policy  =>
-        {
-            policy.WithOrigins("http://217.171.146.249", "http://localhost:3000")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});
+builder.Services.AddCorsPolicy();
+
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
@@ -49,71 +33,26 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = null;
     });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
-builder.Services.AddScoped<IJwtUtils, JwtUtils>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IIMageService, ImageService>();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
-            b => b.MigrationsAssembly("IoChatServer")))
-    .AddScoped<IRepository>(f => f.GetRequiredService<AppDbContext>());
+builder.Services.AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 builder.Services.AddIdentity<User, Role>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("770A8A65DA156D24EE2A093277530142")),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ClockSkew = TimeSpan.Zero
-    };
-    
-    options.Authority = "Authority URL"; // TODO: Update URL
-    options.RequireHttpsMetadata = false;
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var accessToken = context.Request.Query["access_token"];
-
-            var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) &&
-                (path.StartsWithSegments("/chat")))
-            {
-                context.Token = accessToken;
-            }
-            return Task.CompletedTask;
-        }
-    };
-});
 builder.Services.AddSignalR();
+builder.Services.AddJwtAuthentication();
 
-builder.Services.TryAddEnumerable(
-    ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>,
-        ConfigureJwtBearerOptions>());
-
-foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-{
-    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assembly));
-}
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateUserCommandHandler).Assembly, typeof(AuthenticateCommand).Assembly));
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(SendMessageCommandHandler).Assembly, typeof(SendMessageCommand).Assembly));
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(GetCurrentUserCommandHandler).Assembly, typeof(GetCurrentUserCommand).Assembly));
+builder.Services.AddMediatRCommandHandlers();
 
 var app = builder.Build();
 

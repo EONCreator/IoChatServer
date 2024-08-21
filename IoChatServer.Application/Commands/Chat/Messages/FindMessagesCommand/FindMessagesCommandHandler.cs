@@ -40,7 +40,7 @@ public class FindMessagesCommandHandler : IRequestHandler<FindMessagesCommand, F
                     })
                     .FirstOrDefault(u => u.Id.ToString() == m.SenderId)
             })
-            .Where(m => m.ChatRoomId == command.ChatRoomId && m.Text.Contains(command.Text))
+            .Where(m => m.ChatRoomId == command.ChatRoomId && m.Text.ToLower().Contains(command.Text.ToLower()))
             .ToListAsync(cancellationToken);
         
         var messageList = new List<MessageModel>();
