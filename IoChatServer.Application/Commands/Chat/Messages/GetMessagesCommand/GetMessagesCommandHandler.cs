@@ -31,10 +31,10 @@ public class GetMessagesCommandHandler : IRequestHandler<GetMessagesCommand, Get
     {
         var messages = await _chatService.GetMessagesOfChatRoom(command.ChatRoomId);
         
-        var messageList = new List<MessageModel>();
+        var messageList = new List<MessageClientModel>();
 
         foreach (var message in messages)
-            messageList.Add(new MessageModel(message.Id, message.Text, message.Date, message.SenderId, $"{message.Sender.FirstName} {message.Sender.LastName}", message.Sender.Avatar));
+            messageList.Add(new MessageClientModel(message.Id, message.Text, message.Date, message.SenderId, $"{message.Sender.FirstName} {message.Sender.LastName}", message.Sender.Avatar));
         
         return new GetMessagesResponse(messageList);
     }

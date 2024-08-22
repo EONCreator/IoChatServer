@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
 using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
@@ -115,20 +114,20 @@ public class ChatService : IChatService
     public async Task<List<ChatRoomDto>> GetChatRooms()
     {
         var userId = await _userService.GetCurrentUserId();
-        
-        var chatRooms = new List<ChatRoomDto>();
 
         var currentUser = await _repository.Entity<User>()
             .Include(u => u.ChatRooms)
             .ThenInclude(c => c.Users)
             .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+        
+        var chatRooms = new List<ChatRoomDto>();
 
         foreach (var chatRoom in currentUser.ChatRooms)
         {
             var chatIsGroup = chatRoom.Users.Count > 2; // If chat room's users count > 2, it's group
             foreach (var user in chatRoom.Users.Where(u => u.Id.ToString() != userId))
             {
-                var chatRoomName = chatIsGroup ? "Group" : $"{user.FirstName} {user.LastName}";
+                var chatRoomName = chatIsGroup ? chatRoom.Name : $"{user.FirstName} {user.LastName}";
                 
                 chatRooms.Add(new ChatRoomDto()
                 {
@@ -137,14 +136,10 @@ public class ChatService : IChatService
                     ChatRoomId = chatRoom.Id,
                     ChatRoomName = chatRoomName,
                     
-                    LastMessage = _repository.Entity<Message>()
-                        .Where(m => m.ChatRoomId == chatRoom.Id).Count() != 0 
-                        
-                        ? _repository.Entity<Message>()
-                            .OrderByDescending(m => m.Date)
-                            .FirstOrDefault(m => m.ChatRoomId == chatRoom.Id).Text : "",
+                    LastMessage = chatRoom.LastMessage,
+                    LastMessageDate = chatRoom.LastMessageDate,
                     
-                    UnreadMessages = 0,
+                    UnreadMessages = chatRoom.UnreadMessages,
                     Online = ChatHub.Connections.GetConnections(user.Id.ToString()).Count() != 0
                 });
 
@@ -203,7 +198,7 @@ public class ChatService : IChatService
                 Text = m.Text,
                 Date = m.Date,
                 SenderId = m.SenderId,
-                Sender = _repository.Entity<Domain.Entities.User>()
+                Sender = _repository.Entity<User>()
                     .Select(u => new SenderDto
                     {
                         Id = u.Id,
@@ -216,7 +211,7 @@ public class ChatService : IChatService
             .Where(m => m.ChatRoomId == chatRoomId);
         
         if (predicate != null)
-            messagesQuery = messagesQuery.AsQueryable().Where(predicate); // Применяем предикат
+            messagesQuery = messagesQuery.AsQueryable().Where(predicate);
         
         var messages = await messagesQuery.ToListAsync();
         return messages;
@@ -225,7 +220,7 @@ public class ChatService : IChatService
     #endregion
 }
 
-public class MessageModel
+public class MessageClientModel
 {
     public int Id { get; }
     public string Text { get;  }
@@ -234,7 +229,7 @@ public class MessageModel
     public string SenderName { get; }
     public string SenderAvatar { get; }
 
-    public MessageModel(
+    public MessageClientModel(
         int id, 
         string text, 
         DateTime date, 
@@ -257,6 +252,7 @@ public class ChatRoomDto
     public string Id { get; set; }
     public string? Avatar { get; set; }
     public string ChatRoomName { get; set; }
+    public DateTime LastMessageDate { get; set; }
     public string LastMessage { get; set; }
     public int UnreadMessages { get; set; }
     public bool Online { get; set; }

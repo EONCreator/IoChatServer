@@ -28,10 +28,10 @@ public class FindMessagesCommandHandler : IRequestHandler<FindMessagesCommand, F
             command.ChatRoomId, 
             m => m.Text.ToLower().Contains(command.Text.ToLower()));
         
-        var messageList = new List<MessageModel>();
+        var messageList = new List<MessageClientModel>();
 
         foreach (var message in messages)
-            messageList.Add(new MessageModel(
+            messageList.Add(new MessageClientModel(
                 message.Id, 
                 message.Text, 
                 message.Date, 
