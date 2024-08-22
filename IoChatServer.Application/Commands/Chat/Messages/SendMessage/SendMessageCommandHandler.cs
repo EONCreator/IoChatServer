@@ -33,8 +33,6 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Sen
         var currentUser = await _repository.Entity<Domain.Entities.User>()
             .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
         
-        var userIds = ChatHub.Connections.GetConnections(userId);
-
         var chatRoom = await _repository.Entity<ChatRoom>()
             .Include(c => c.Users)
             .FirstOrDefaultAsync(c => c.Id == command.Message.ChatRoomId);
@@ -54,21 +52,13 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Sen
         await _repository.SaveChanges();
         
         // Connections of getting users in chat room
-        var userToIds = new List<IEnumerable<string>>();
-
+        var userToIds = new List<string>();
+        userToIds.Add(userId);
+        
         foreach (var user in chatRoom.Users)
-            userToIds.Add(ChatHub.Connections.GetConnections(user.Id.ToString()));
-
-        foreach (var user in userIds)
-            ids.Add(user);
-
-        foreach (var user in userToIds)
-        {
-            foreach (var userConnection in user)
-            {
-                ids.Add(userConnection);
-            }
-        }
+            userToIds.Add(user.Id.ToString());
+        
+        ids.AddRange(ChatHub.GetUsersConnections(userToIds));
 
         await _chatHub.Clients.Clients(ids).SendAsync("send", command.Message);
         
