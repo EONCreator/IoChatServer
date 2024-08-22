@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
 using IoChatServer.Services.Chat;
+using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.Chat.FindUser;
@@ -37,13 +38,15 @@ public class FindUserCommandHandler : IRequestHandler<FindUserCommand, FindUserR
         var userName = user.UserName;
         var avatar = user.Avatar;
         var fullName = $"{user.FirstName} {user.LastName}";
+        var online = ChatHub.Connections.GetConnections(id).Count() > 0;
         
         var response = new FindUserResponse(
             id,
             chatRoom != null ? chatRoom.Id : null, 
             avatar,
             userName, 
-            fullName);
+            fullName,
+            online);
         
         return response;
     }

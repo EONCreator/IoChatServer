@@ -33,6 +33,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Sen
         var currentUser = await _userService.GetCurrentUser();
         
         chatRoom.SetLastMessage(message.Text);
+        chatRoom.SetLastMessageDateTime(DateTime.UtcNow);
 
         message.SetChatRoomId(chatRoom.Id);
         message.SetSenderName($"{currentUser.FirstName} {currentUser.LastName}");
