@@ -24,29 +24,18 @@ public class WritingMessageCommandHandler : IRequestHandler<WritingMessageComman
     
     public async Task<WritingMessageResponse> Handle(WritingMessageCommand command, CancellationToken cancellationToken)
     {
-        List<string> ids = new List<string>();
-        
         var userId = await _userService.GetCurrentUserId();
 
         var chatRoom = await _repository.Entity<ChatRoom>()
             .Include(c => c.Users.Where(u => u.Id.ToString() != userId))
             .FirstOrDefaultAsync(c => c.Id == command.ChatRoomId);
 
-        // Connections of getting users in chat room
-        var userToIds = new List<IEnumerable<string>>();
-        
+        List<string> userToIds = new List<string>();
         foreach (var user in chatRoom.Users)
-            userToIds.Add(ChatHub.Connections.GetConnections(user.Id.ToString()));
+            userToIds.Add(user.Id.ToString());
 
-        foreach (var user in userToIds)
-        {
-            foreach (var userConnection in user)
-            {
-                ids.Add(userConnection);
-            }
-        }
-
-        await _chatHub.Clients.Clients(ids).SendAsync("writing", command.ChatRoomId);
+        await _chatHub.Clients.Clients(ChatHub.GetUsersConnections(userToIds))
+            .SendAsync("writing", command.ChatRoomId);
         
         return new WritingMessageResponse();
     }

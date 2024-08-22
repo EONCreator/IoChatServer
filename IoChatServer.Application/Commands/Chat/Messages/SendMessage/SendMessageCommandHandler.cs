@@ -55,11 +55,9 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Sen
         
         foreach (var user in chatRoom.Users)
             userToIds.Add(user.Id.ToString());
-        
-        List<string> connectionIds = new List<string>();
-        connectionIds.AddRange(ChatHub.GetUsersConnections(userToIds));
 
-        await _chatHub.Clients.Clients(connectionIds).SendAsync("send", message);
+        await _chatHub.Clients.Clients(ChatHub.GetUsersConnections(userToIds))
+            .SendAsync("send", message);
     }
     
     public async Task<SendMessageResponse> Handle(SendMessageCommand command, CancellationToken cancellationToken)
