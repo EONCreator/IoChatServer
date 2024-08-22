@@ -48,17 +48,11 @@ public class ChatHub : Hub
     
     public static IEnumerable<string> GetUsersConnections(ICollection<string> userIds)
     {
-        var connectionIdList = new List<IEnumerable<string>>();
-        foreach (var id in userIds)
-            connectionIdList.Add(ChatHub.Connections.GetConnections(id));
-
         var connectionIds = new List<string>();
-        foreach (var userConnections in connectionIdList)
+        foreach (var userId in userIds)
         {
-            foreach (var connection in userConnections) 
-            {
+            foreach (var connection in Connections.GetConnections(userId))
                 connectionIds.Add(connection);
-            }
         }
 
         return connectionIds;

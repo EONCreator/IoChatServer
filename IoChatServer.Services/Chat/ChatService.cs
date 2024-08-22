@@ -127,12 +127,15 @@ public class ChatService : IChatService
             var chatIsGroup = chatRoom.Users.Count > 2; // If chat room's users count > 2, it's group
             foreach (var user in chatRoom.Users.Where(u => u.Id.ToString() != userId))
             {
+                var getterId = chatIsGroup ? null : user.Id.ToString();
+                var avatar = chatIsGroup ? chatRoom.Avatar : user.Avatar;
                 var chatRoomName = chatIsGroup ? chatRoom.Name : $"{user.FirstName} {user.LastName}";
+                var online = chatIsGroup ? false : ChatHub.Connections.GetConnections(user.Id.ToString()).Count() != 0;
                 
                 chatRooms.Add(new ChatRoomDto()
                 {
-                    Id = user.Id.ToString(),
-                    Avatar = user.Avatar,
+                    GetterId = getterId,
+                    Avatar = avatar,
                     ChatRoomId = chatRoom.Id,
                     ChatRoomName = chatRoomName,
                     
@@ -140,7 +143,7 @@ public class ChatService : IChatService
                     LastMessageDate = chatRoom.LastMessageDate,
                     
                     UnreadMessages = chatRoom.UnreadMessages,
-                    Online = ChatHub.Connections.GetConnections(user.Id.ToString()).Count() != 0
+                    Online = online
                 });
 
                 if (chatIsGroup)
@@ -249,7 +252,7 @@ public class MessageClientModel
 public class ChatRoomDto
 {
     public int ChatRoomId { get; set; }
-    public string Id { get; set; }
+    public string GetterId { get; set; }
     public string? Avatar { get; set; }
     public string ChatRoomName { get; set; }
     public DateTime LastMessageDate { get; set; }

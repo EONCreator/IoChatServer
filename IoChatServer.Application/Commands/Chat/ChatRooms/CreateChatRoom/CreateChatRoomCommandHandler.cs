@@ -28,64 +28,55 @@ public class CreateChatRoomCommandHandler : IRequestHandler<CreateChatRoomComman
         _userService = userService;
         _chatService = chatService;
     }
-    
-    public async Task<CreateChatRoomResponse> Handle(CreateChatRoomCommand command, CancellationToken cancellationToken)
+
+    public async Task SaveChatRoom(ChatRoom chatRoom, List<string> userIds)
     {
-        var userId = await _userService.GetCurrentUserId();
-
-        var chatRoomIsExists = await _chatService.ChatRoomIsExists(command.Ids.ToList());
-        
-        if (chatRoomIsExists)
-            return null;
-
-        var chatRoom = new ChatRoom();
-
-        /*foreach (var id in command.Ids)
-        {
-            var user = await _repository.Entity<User>()
-                .FirstOrDefaultAsync(u => u.Id.ToString() == id);
-            
-            chatRoom.Users.Add(user);
-        }*/
-        
         chatRoom.Users.AddRange(_repository
             .Entity<User>()
-            .Where(u => command.Ids.Contains(u.Id.ToString())));
+            .Where(u => userIds.Contains(u.Id.ToString())));
 
         _repository.Entity<ChatRoom>().Add(chatRoom);
         await _repository.SaveChanges();
-        
-        List<string> ids = new List<string>();
-        
-        // Connections of getting users in chat room
-        var userToIds = new List<IEnumerable<string>>();
-        
-        foreach (var id in command.Ids.Where(i => i != userId))
-            userToIds.Add(ChatHub.Connections.GetConnections(id));
-        
-        foreach (var user in userToIds)
-        {
-            foreach (var userConnection in user)
-            {
-                ids.Add(userConnection);
-            }
-        }
+    }
 
+    public async Task<CreateChatRoomResponse> SendChatRoom(ChatRoom chatRoom, List<string> userIds)
+    {
+        var userId = await _userService.GetCurrentUserId();
         var chatId = chatRoom.Id;
 
         var isGroup = chatRoom.Users.Count > 2;
         var chatRoomUser = chatRoom.Users.FirstOrDefault(u => u.Id.ToString() == userId);
         var chatRoomName = isGroup
-            ? "Group" 
+            ? chatRoom.Name
             : $"{chatRoomUser.FirstName} {chatRoomUser.LastName}";
         var chatRoomAvatar = isGroup
-            ? null
+            ? chatRoom.Avatar
             : chatRoomUser.Avatar;
         
-        var response = new CreateChatRoomResponse(chatId,  "Последнее сообщение", chatRoomName, chatRoomAvatar);
+        var response = new CreateChatRoomResponse(
+            chatId,  
+            chatRoom.LastMessage, 
+            chatRoomName, 
+            chatRoomAvatar);
         
-        await _chatHub.Clients.Clients(ids)
+        await _chatHub.Clients.Clients(
+                ChatHub.GetUsersConnections(userIds.Where(i => i != userId).ToList()))
             .SendAsync("create_chat", response);
+
+        return response;
+    }
+    
+    public async Task<CreateChatRoomResponse> Handle(CreateChatRoomCommand command, CancellationToken cancellationToken)
+    {
+        var chatRoomIsExists = await _chatService.ChatRoomIsExists(command.UserIds.ToList());
+        
+        if (chatRoomIsExists)
+            return null;
+
+        var chatRoom = new ChatRoom();
+        
+        await SaveChatRoom(chatRoom, command.UserIds);
+        var response = await SendChatRoom(chatRoom, command.UserIds);
         
         return response;
     }

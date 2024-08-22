@@ -4,10 +4,10 @@ namespace IoChatServer.Application.Commands.Chat.CreateChatRoom;
 
 public class CreateChatRoomCommand : IRequest<CreateChatRoomResponse>
 {
-    public ICollection<string> Ids { get; set; }
+    public List<string> UserIds { get; set; }
 
-    public CreateChatRoomCommand(ICollection<string> ids)
+    public CreateChatRoomCommand(List<string> userIds)
     {
-        Ids = ids;
+        UserIds = userIds;
     }
 }

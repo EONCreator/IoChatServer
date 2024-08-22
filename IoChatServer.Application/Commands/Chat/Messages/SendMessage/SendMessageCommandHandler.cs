@@ -31,6 +31,8 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Sen
     private async Task SaveMessage(ChatRoom chatRoom, Message message)
     {
         var currentUser = await _userService.GetCurrentUser();
+        
+        chatRoom.SetLastMessage(message.Text);
 
         message.SetChatRoomId(chatRoom.Id);
         message.SetSenderName($"{currentUser.FirstName} {currentUser.LastName}");
