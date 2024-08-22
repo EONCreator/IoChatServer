@@ -13,6 +13,7 @@ public interface IUserService
     IEnumerable<User> GetAll();
     Task<User>? GetById(string id);
     Task<string>? GetCurrentUserId();
+    Task<User>? GetCurrentUser();
 }
 
 public class SignInResult
@@ -88,5 +89,13 @@ public class UserService : IUserService
         var id = user.Claims.ToList().Find(r => r.Type == "id").Value;
 
         return await Task.FromResult(id);
+    }
+
+    public async Task<User>? GetCurrentUser()
+    {
+        var userId = await GetCurrentUserId();
+        var user = await GetById(userId);
+
+        return user;
     }
 }

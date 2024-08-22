@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
+using IoChatServer.Services.Chat;
 using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
 
@@ -13,54 +14,61 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Sen
     private IUserService _userService;
     private IHubContext<ChatHub> _chatHub;
     private IRepository _repository;
+    private IChatService _chatService;
     
     public SendMessageCommandHandler(
         IUserService userService, 
         IHubContext<ChatHub> chatHub,
-        IRepository repository)
+        IRepository repository,
+        IChatService chatService)
     {
         _userService = userService;
         _chatHub = chatHub;
         _repository = repository;
+        _chatService = chatService;
     }
-    
-    public async Task<SendMessageResponse> Handle(SendMessageCommand command, CancellationToken cancellationToken)
+
+    private async Task SaveMessage(ChatRoom chatRoom, Message message)
     {
-        List<string> ids = new List<string>();
-        
-        // Connections of current user
-        var userId = await _userService.GetCurrentUserId();
-        var currentUser = await _repository.Entity<Domain.Entities.User>()
-            .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
-        
-        var chatRoom = await _repository.Entity<ChatRoom>()
-            .Include(c => c.Users)
-            .FirstOrDefaultAsync(c => c.Id == command.Message.ChatRoomId);
+        var currentUser = await _userService.GetCurrentUser();
 
-        command.Message.ChatRoomId = chatRoom.Id;
-        command.Message.SenderName = $"{currentUser.FirstName} {currentUser.LastName}";
-        command.Message.SenderAvatar = currentUser.Avatar;
+        message.SetChatRoomId(chatRoom.Id);
+        message.SetSenderName($"{currentUser.FirstName} {currentUser.LastName}");
+        message.SetSenderAvatar(currentUser.Avatar);
+        message.SetDate(DateTime.UtcNow);
 
-        command.Message.Date = DateTime.UtcNow;
-
-        var messageToSave = new Message(
-            command.Message.Text, 
-            command.Message.SenderId, 
-            command.Message.ChatRoomId);
+        var messageToSave = new Message(message.Text, message.SenderId, message.ChatRoomId);
         _repository.Entity<Message>().Add(messageToSave);
         
         await _repository.SaveChanges();
-        
-        // Connections of getting users in chat room
+    }
+
+    private async Task SendMessageToChatRoom(ChatRoom chatRoom, Message message)
+    {
         var userToIds = new List<string>();
+
+        var userId = await _userService.GetCurrentUserId();
         userToIds.Add(userId);
         
         foreach (var user in chatRoom.Users)
             userToIds.Add(user.Id.ToString());
         
-        ids.AddRange(ChatHub.GetUsersConnections(userToIds));
+        List<string> connectionIds = new List<string>();
+        connectionIds.AddRange(ChatHub.GetUsersConnections(userToIds));
 
-        await _chatHub.Clients.Clients(ids).SendAsync("send", command.Message);
+        await _chatHub.Clients.Clients(connectionIds).SendAsync("send", message);
+    }
+    
+    public async Task<SendMessageResponse> Handle(SendMessageCommand command, CancellationToken cancellationToken)
+    {
+        var chatRoom = await _chatService.GetChatRoom(command.Message.ChatRoomId);
+        
+        var userInChatRoom = await _chatService.UserInChatRoom(command.Message.ChatRoomId);
+        if (!userInChatRoom)
+            return null;
+        
+        await SaveMessage(chatRoom, command.Message);
+        await SendMessageToChatRoom(chatRoom, command.Message);
         
         return new SendMessageResponse();
     }
