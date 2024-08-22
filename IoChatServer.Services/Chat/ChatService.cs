@@ -28,6 +28,19 @@ public class ChatService : IChatService
         _userService = userService;
         _repository = repository;
     }
+    #region ChatRooms
+    
+    public async Task<bool> ChatRoomIsExists(
+        List<string> ids)
+    {
+        var userId = await _userService.GetCurrentUserId();
+
+        return await _repository.Entity<ChatRoom>()
+            .AnyAsync(uc =>
+                uc.Users.Any(u => u.Id.ToString() == userId)
+                && uc.Users.Any(u => ids.Where(c => c != userId.ToString())
+                    .Contains(u.Id.ToString())));
+    }
     
     public async Task<ChatRoom>? GetChatRoom(List<string> ids)
     {
@@ -86,18 +99,10 @@ public class ChatService : IChatService
         return await Task.FromResult(userIds);
     }
 
-    public async Task<bool> ChatRoomIsExists(
-        List<string> ids)
-    {
-        var userId = await _userService.GetCurrentUserId();
-
-        return await _repository.Entity<ChatRoom>()
-            .AnyAsync(uc =>
-                uc.Users.Any(u => u.Id.ToString() == userId)
-                && uc.Users.Any(u => ids.Where(c => c != userId.ToString())
-                    .Contains(u.Id.ToString())));
-    }
-
+    #endregion
+    
+    #region Messages
+    
     public async Task<List<MessageDto>> GetMessagesOfChatRoom(
         int chatRoomId,
         Expression<Func<MessageDto, bool>>? predicate = null
@@ -129,6 +134,8 @@ public class ChatService : IChatService
         var messages = await messagesQuery.ToListAsync();
         return messages;
     }
+    
+    #endregion
 }
 
 public class MessageModel
