@@ -1,4 +1,4 @@
-using IoChatServer.Application.Commands.Chat.Messages.GetMessagesCommand;
+using IoChatServer.Services.Chat;
 
 namespace IoChatServer.Application.Commands.Chat.Messages.FindMessagesCommand;
 

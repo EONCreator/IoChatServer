@@ -17,5 +17,4 @@ public class User : IdentityUser<Guid>
     public void SetAvatar(string avatar) => Avatar = avatar;
     public void SetFirstName(string firstName) => FirstName = firstName;
     public void SetLastName(string lastName) => LastName = lastName;
-    public void SetAddress(string address) => Address = address;
 }

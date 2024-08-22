@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
@@ -12,6 +13,9 @@ public interface IChatService
     Task<ICollection<string>> GetUserIdsOfAllChatRooms();
     
     Task<bool> ChatRoomIsExists(List<string> ids);
+
+    Task<List<MessageDto>> GetMessagesOfChatRoom(int chatRoomId, 
+        Expression<Func<MessageDto, bool>>? predicate = null);
 }
 
 public class ChatService : IChatService
@@ -82,7 +86,8 @@ public class ChatService : IChatService
         return await Task.FromResult(userIds);
     }
 
-    public async Task<bool> ChatRoomIsExists(List<string> ids)
+    public async Task<bool> ChatRoomIsExists(
+        List<string> ids)
     {
         var userId = await _userService.GetCurrentUserId();
 
@@ -92,4 +97,80 @@ public class ChatService : IChatService
                 && uc.Users.Any(u => ids.Where(c => c != userId.ToString())
                     .Contains(u.Id.ToString())));
     }
+
+    public async Task<List<MessageDto>> GetMessagesOfChatRoom(
+        int chatRoomId,
+        Expression<Func<MessageDto, bool>>? predicate = null
+        )
+    {
+        var messagesQuery = _repository.Entity<Message>()
+            .Select(m => new MessageDto
+            {
+                Id = m.Id,
+                ChatRoomId = m.ChatRoomId,
+                Text = m.Text,
+                Date = m.Date,
+                SenderId = m.SenderId,
+                Sender = _repository.Entity<Domain.Entities.User>()
+                    .Select(u => new SenderDto
+                    {
+                        Id = u.Id,
+                        FirstName = u.FirstName,
+                        LastName = u.LastName,
+                        Avatar = u.Avatar
+                    })
+                    .FirstOrDefault(u => u.Id.ToString() == m.SenderId)
+            })
+            .Where(m => m.ChatRoomId == chatRoomId);
+        
+        if (predicate != null)
+            messagesQuery = messagesQuery.AsQueryable().Where(predicate); // Применяем предикат
+        
+        var messages = await messagesQuery.ToListAsync();
+        return messages;
+    }
+}
+
+public class MessageModel
+{
+    public int Id { get; }
+    public string Text { get;  }
+    public DateTime Date { get; }
+    public string SenderId { get; }
+    public string SenderName { get; }
+    public string SenderAvatar { get; }
+
+    public MessageModel(
+        int id, 
+        string text, 
+        DateTime date, 
+        string senderId,
+        string senderName,
+        string senderAvatar)
+    {
+        Id = id;
+        Text = text;
+        Date = date;
+        SenderId = senderId;
+        SenderName = senderName;
+        SenderAvatar = senderAvatar;
+    }
+}
+
+public class MessageDto
+{
+    public int Id { get; set; }
+    public int ChatRoomId { get; set; }
+    public string Text { get; set; }
+    public DateTime Date { get; set; }
+    public string SenderId { get; set; }
+    public SenderDto Sender { get; set; }
+}
+
+public class SenderDto
+{
+    public Guid Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Avatar { get; set; }
 }

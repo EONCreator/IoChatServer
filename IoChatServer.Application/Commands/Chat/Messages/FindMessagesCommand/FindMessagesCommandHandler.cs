@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using IoChatServer.Application.Commands.Chat.Messages.GetMessagesCommand;
 using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
+using IoChatServer.Services.Chat;
 using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.Chat.Messages.FindMessagesCommand;
@@ -11,37 +12,21 @@ public class FindMessagesCommandHandler : IRequestHandler<FindMessagesCommand, F
 {
     private IUserService _userService;
     private IRepository _repository;
+    private IChatService _chatService;
     
     public FindMessagesCommandHandler(
         IUserService userService,
-        IRepository repository)
+        IRepository repository,
+        IChatService chatService)
     {
         _userService = userService;
         _repository = repository;
+        _chatService = chatService;
     }
     
     public async Task<FindMessagesResponse> Handle(FindMessagesCommand command, CancellationToken cancellationToken)
     {
-        var messages = await _repository.Entity<Message>()
-            .Select(m => new
-            {
-                m.Id,
-                m.ChatRoomId,
-                m.Text,
-                m.Date,
-                m.SenderId,
-                Sender = _repository.Entity<Domain.Entities.User>()
-                    .Select(u => new
-                    {
-                        u.Id,
-                        u.FirstName,
-                        u.LastName,
-                        u.Avatar
-                    })
-                    .FirstOrDefault(u => u.Id.ToString() == m.SenderId)
-            })
-            .Where(m => m.ChatRoomId == command.ChatRoomId && m.Text.ToLower().Contains(command.Text.ToLower()))
-            .ToListAsync(cancellationToken);
+        var messages = await _chatService.GetMessagesOfChatRoom(command.ChatRoomId, m => m.Text.ToLower().Contains(command.Text.ToLower()));
         
         var messageList = new List<MessageModel>();
 
