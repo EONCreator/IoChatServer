@@ -1,10 +1,10 @@
+using IoChatServer.Helpers.Errors;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.User.GetCurrentUser;
 
-public class GetCurrentUserCommandHandler : IRequestHandler<GetCurrentUserCommand, GetCurrentUserResponse>
+public class GetCurrentUserCommandHandler : IRequestHandler<GetCurrentUserCommand, GetCurrentUserOutput>
 {
     private IUserService _userService;
     
@@ -13,11 +13,12 @@ public class GetCurrentUserCommandHandler : IRequestHandler<GetCurrentUserComman
         _userService = userService;
     }
     
-    public async Task<GetCurrentUserResponse> Handle(GetCurrentUserCommand command, CancellationToken cancellationToken)
+    public async Task<GetCurrentUserOutput> Handle(GetCurrentUserCommand command, CancellationToken cancellationToken)
     {
-        var userId = await _userService.GetCurrentUserId();
-        var user = await _userService.GetById(userId);
+        var user = await _userService.GetCurrentUser();
+        if (user == null)
+            return GetCurrentUserOutput.Failure(UserErrors.NotFound);
         
-        return new GetCurrentUserResponse(user);
+        return GetCurrentUserOutput.Succeeded(user);
     }
 }

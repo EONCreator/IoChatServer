@@ -1,6 +1,6 @@
-namespace IoChatServer.Application.Commands.Authenticate.AuthenticateCommand;
+namespace IoChatServer.Application.Commands.User.CreateUserCommand.User;
 
-public class AuthenticateResponse
+public class CreateUserOutput
 {
     public Guid Id { get; set; }
     public string? UserName { get; set; }
@@ -9,14 +9,8 @@ public class AuthenticateResponse
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
 
-    public bool Succeeded { get; }
-    
-    public static AuthenticateResponse Failure => new(false, null, null);
-    
-    public AuthenticateResponse(bool succeeded, Domain.Entities.User user, string token)
+    public CreateUserOutput(Domain.Entities.User user, string token)
     {
-        Succeeded = succeeded;
-        
         Id = user.Id;
         UserName = user.UserName;
         Token = token;
