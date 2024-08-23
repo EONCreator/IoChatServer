@@ -39,7 +39,8 @@ public class WritingMessageCommandHandler : IRequestHandler<WritingMessageComman
         foreach (var user in chatRoom.Users)
             userToIds.Add(user.Id.ToString());
 
-        await _chatHub.Clients.Clients(ChatHub.GetUsersConnections(userToIds))
+        await _chatHub.Clients.Clients(
+                ChatHub.GetUsersConnections(userToIds))
             .SendAsync(ChatEvents.WRITING, command.ChatRoomId);
         
         return WritingMessageOutput.Success();

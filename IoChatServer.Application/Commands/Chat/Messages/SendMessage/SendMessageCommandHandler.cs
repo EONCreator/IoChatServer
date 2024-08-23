@@ -55,7 +55,8 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Sen
         foreach (var user in chatRoom.Users)
             userToIds.Add(user.Id.ToString());
 
-        await _chatHub.Clients.Clients(ChatHub.GetUsersConnections(userToIds))
+        await _chatHub.Clients.Clients(
+                ChatHub.GetUsersConnections(userToIds))
             .SendAsync(ChatEvents.SEND_MESSAGE, message);
     }
     
