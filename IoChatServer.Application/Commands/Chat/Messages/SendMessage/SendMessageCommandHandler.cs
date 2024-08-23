@@ -1,20 +1,22 @@
+using IoChatServer.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
+using IoChatServer.Helpers.Errors;
 using IoChatServer.Services.Chat;
 using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.Messages.SendMessageCommand;
 
-public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, SendMessageResponse>
+public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, SendMessageOutput>
 {
-    private IUserService _userService;
-    private IHubContext<ChatHub> _chatHub;
-    private IRepository _repository;
-    private IChatService _chatService;
+    private readonly IUserService _userService;
+    private readonly IHubContext<ChatHub> _chatHub;
+    private readonly IRepository _repository;
+    private readonly IChatService _chatService;
     
     public SendMessageCommandHandler(
         IUserService userService, 
@@ -48,29 +50,28 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Sen
 
     private async Task SendMessageToChatRoom(ChatRoom chatRoom, Message message)
     {
-        var userToIds = new List<string>();
-
-        var userId = await _userService.GetCurrentUserId();
-        userToIds.Add(userId);
+        var userToIds = new List<string>() { await _userService.GetCurrentUserId() };
         
         foreach (var user in chatRoom.Users)
             userToIds.Add(user.Id.ToString());
 
         await _chatHub.Clients.Clients(ChatHub.GetUsersConnections(userToIds))
-            .SendAsync("send", message);
+            .SendAsync(ChatEvents.SEND_MESSAGE, message);
     }
     
-    public async Task<SendMessageResponse> Handle(SendMessageCommand command, CancellationToken cancellationToken)
+    public async Task<SendMessageOutput> Handle(SendMessageCommand command, CancellationToken cancellationToken)
     {
         var chatRoom = await _chatService.GetChatRoom(command.Message.ChatRoomId);
+        if (chatRoom == null)
+            return SendMessageOutput.Failure(ChatErrors.DoesNotExists);
         
         var userInChatRoom = await _chatService.UserInChatRoom(command.Message.ChatRoomId);
         if (!userInChatRoom)
-            return null;
+            return SendMessageOutput.Failure(ChatErrors.UserNotInChatRoom);
         
         await SaveMessage(chatRoom, command.Message);
         await SendMessageToChatRoom(chatRoom, command.Message);
         
-        return new SendMessageResponse();
+        return SendMessageOutput.Success();
     }
 }

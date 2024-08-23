@@ -2,7 +2,7 @@ using MediatR;
 
 namespace IoChatServer.Application.Commands.Chat.Messages.GetMessagesCommand;
 
-public class GetMessagesCommand : IRequest<GetMessagesResponse>
+public class GetMessagesCommand : IRequest<GetMessagesOutput>
 {
     public int ChatRoomId { get; }
 

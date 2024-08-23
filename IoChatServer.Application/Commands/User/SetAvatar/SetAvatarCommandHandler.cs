@@ -1,6 +1,8 @@
 using IoChatServer.Application.Commands.User.CreateUserCommand.User;
+using IoChatServer.Domain.Models;
 using IoChatServer.Domain.Models.Authorization;
 using IoChatServer.Domain.Repositories;
+using IoChatServer.Helpers.Errors;
 using IoChatServer.Services.Images;
 using IoChatServer.Services.User;
 using MediatR;
@@ -9,7 +11,7 @@ using SignInResult = IoChatServer.Services.User.SignInResult;
 
 namespace IoChatServer.Application.Commands.User.CreateUserCommand;
 
-public class SetAvatarCommandHandler : IRequestHandler<SetAvatarCommand, SetAvatarResponse>
+public class SetAvatarCommandHandler : IRequestHandler<SetAvatarCommand, SucceededResult>
 {
     private IRepository _repository;
     private IUserService _userService;
@@ -25,7 +27,7 @@ public class SetAvatarCommandHandler : IRequestHandler<SetAvatarCommand, SetAvat
         _imageService = imageService;
     }
     
-    public async Task<SetAvatarResponse> Handle(SetAvatarCommand command, CancellationToken cancellationToken)
+    public async Task<SucceededResult> Handle(SetAvatarCommand command, CancellationToken cancellationToken)
     {
         var userId = await _userService.GetCurrentUserId();
 
@@ -33,13 +35,13 @@ public class SetAvatarCommandHandler : IRequestHandler<SetAvatarCommand, SetAvat
             .FirstOrDefault(u => u.Id.ToString() == userId);
 
         if (user == null)
-            return null;
+            return SetAvatarOutput.Failure(UserErrors.NotFound);
 
         string imageName = await _imageService.ConvertFromBase64(command.Base64EncodedImage);
         user.SetAvatar(imageName);
 
         await _repository.SaveChanges();
         
-        return new SetAvatarResponse(imageName);
+        return SetAvatarOutput.Succeeded(imageName);
     }
 }

@@ -3,7 +3,7 @@ using MediatR;
 
 namespace IoChatServer.Application.Commands.Chat.Messages.FindMessagesCommand;
 
-public class FindMessagesCommand : IRequest<FindMessagesResponse>
+public class FindMessagesCommand : IRequest<FindMessagesOutput>
 {
     public int ChatRoomId { get; }
     public string Text { get; }

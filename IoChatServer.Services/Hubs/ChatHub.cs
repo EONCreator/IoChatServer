@@ -1,3 +1,4 @@
+using IoChatServer.Abstractions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -9,8 +10,7 @@ namespace IoChatServer.Services.Hubs;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ChatHub : Hub
 {
-    public readonly static ConnectionMapping<string> Connections = 
-        new ConnectionMapping<string>();
+    public readonly static ConnectionMapping<string> Connections = new();
 
     private IChatService _chatService;
 
@@ -27,7 +27,7 @@ public class ChatHub : Hub
         var userIds = _chatService.GetUserIdsOfAllChatRooms().Result;
         var connectionIds = GetUsersConnections(userIds);
 
-        Clients.Clients(connectionIds).SendAsync("online", userId, true).Wait();
+        Clients.Clients(connectionIds).SendAsync(ChatEvents.ONLINE, userId, true).Wait();
         
         return base.OnConnectedAsync();
     }
@@ -41,7 +41,7 @@ public class ChatHub : Hub
         var connectionIds = GetUsersConnections(userIds);
 
         if (Connections.GetConnections(userId).Count() == 0)
-            Clients.Clients(connectionIds).SendAsync("online", userId, false).Wait();
+            Clients.Clients(connectionIds).SendAsync(ChatEvents.ONLINE, userId, false).Wait();
 
         return base.OnDisconnectedAsync(exception);
     }

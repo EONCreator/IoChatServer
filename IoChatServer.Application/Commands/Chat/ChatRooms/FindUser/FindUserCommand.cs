@@ -2,7 +2,7 @@ using MediatR;
 
 namespace IoChatServer.Application.Commands.Chat.FindUser;
 
-public class FindUserCommand : IRequest<FindUserResponse>
+public class FindUserCommand : IRequest<FindUserOutput>
 {
     public string UserName { get; set; }
 

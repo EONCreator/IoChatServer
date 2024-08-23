@@ -5,7 +5,7 @@ using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.Chat.GetChatRooms;
 
-public class GetChatRoomsCommandHandler : IRequestHandler<GetChatRoomsCommand, GetChatRoomsResponse>
+public class GetChatRoomsCommandHandler : IRequestHandler<GetChatRoomsCommand, GetChatRoomsOutput>
 {
     private IChatService _chatService;
     
@@ -14,9 +14,9 @@ public class GetChatRoomsCommandHandler : IRequestHandler<GetChatRoomsCommand, G
         _chatService = chatService;
     }
     
-    public async Task<GetChatRoomsResponse> Handle(GetChatRoomsCommand command, CancellationToken cancellationToken)
+    public async Task<GetChatRoomsOutput> Handle(GetChatRoomsCommand command, CancellationToken cancellationToken)
     {
         var chatRooms = await _chatService.GetChatRooms();
-        return new GetChatRoomsResponse(chatRooms);
+        return GetChatRoomsOutput.Success(chatRooms);
     }
 }

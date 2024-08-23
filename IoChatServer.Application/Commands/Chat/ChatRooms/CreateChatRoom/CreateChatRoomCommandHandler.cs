@@ -1,8 +1,10 @@
+using IoChatServer.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
+using IoChatServer.Helpers.Errors;
 using IoChatServer.Services.Chat;
 using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
@@ -10,7 +12,7 @@ using IoChatServer.Services.User;
 namespace IoChatServer.Application.Commands.Chat.CreateChatRoom;
 using Domain.Entities;
 
-public class CreateChatRoomCommandHandler : IRequestHandler<CreateChatRoomCommand, CreateChatRoomResponse>
+public class CreateChatRoomCommandHandler : IRequestHandler<CreateChatRoomCommand, CreateChatRoomOutput>
 {
     private IRepository _repository;
     private IHubContext<ChatHub> _chatHub;
@@ -39,7 +41,7 @@ public class CreateChatRoomCommandHandler : IRequestHandler<CreateChatRoomComman
         await _repository.SaveChanges();
     }
 
-    public async Task<CreateChatRoomResponse> SendChatRoom(ChatRoom chatRoom, List<string> userIds)
+    public async Task<CreateChatRoomClientModel> SendChatRoom(ChatRoom chatRoom, List<string> userIds)
     {
         var userId = await _userService.GetCurrentUserId();
         var chatId = chatRoom.Id;
@@ -53,7 +55,7 @@ public class CreateChatRoomCommandHandler : IRequestHandler<CreateChatRoomComman
             ? chatRoom.Avatar
             : chatRoomUser.Avatar;
         
-        var response = new CreateChatRoomResponse(
+        var response = new CreateChatRoomClientModel(
             chatId,  
             chatRoom.LastMessage, 
             chatRoomName, 
@@ -61,23 +63,23 @@ public class CreateChatRoomCommandHandler : IRequestHandler<CreateChatRoomComman
         
         await _chatHub.Clients.Clients(
                 ChatHub.GetUsersConnections(userIds.Where(i => i != userId).ToList()))
-            .SendAsync("create_chat", response);
+            .SendAsync(ChatEvents.CREATE_CHAT, response);
 
         return response;
     }
     
-    public async Task<CreateChatRoomResponse> Handle(CreateChatRoomCommand command, CancellationToken cancellationToken)
+    public async Task<CreateChatRoomOutput> Handle(CreateChatRoomCommand command, CancellationToken cancellationToken)
     {
         var chatRoomIsExists = await _chatService.ChatRoomIsExists(command.UserIds.ToList());
         
         if (chatRoomIsExists)
-            return null;
+            return CreateChatRoomOutput.Failure(ChatErrors.AlreadyExists);
 
         var chatRoom = new ChatRoom();
         
         await SaveChatRoom(chatRoom, command.UserIds);
         var response = await SendChatRoom(chatRoom, command.UserIds);
         
-        return response;
+        return CreateChatRoomOutput.Success(response);
     }
 }

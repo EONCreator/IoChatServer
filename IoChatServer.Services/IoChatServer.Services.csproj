@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\IoChatServer.Abstractions\IoChatServer.Abstractions.csproj" />
       <ProjectReference Include="..\IoChatServer.Domain\IoChatServer.Domain.csproj" />
       <ProjectReference Include="..\IoChatServer.Helpers\IoChatServer.Helpers.csproj" />
     </ItemGroup>

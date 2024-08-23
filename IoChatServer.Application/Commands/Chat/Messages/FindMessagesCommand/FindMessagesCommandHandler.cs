@@ -3,12 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using IoChatServer.Application.Commands.Chat.Messages.GetMessagesCommand;
 using IoChatServer.Domain.Entities;
 using IoChatServer.Domain.Repositories;
+using IoChatServer.Helpers.Errors;
 using IoChatServer.Services.Chat;
 using IoChatServer.Services.User;
 
 namespace IoChatServer.Application.Commands.Chat.Messages.FindMessagesCommand;
 
-public class FindMessagesCommandHandler : IRequestHandler<FindMessagesCommand, FindMessagesResponse>
+public class FindMessagesCommandHandler : IRequestHandler<FindMessagesCommand, FindMessagesOutput>
 {
     private IChatService _chatService;
     
@@ -18,11 +19,11 @@ public class FindMessagesCommandHandler : IRequestHandler<FindMessagesCommand, F
         _chatService = chatService;
     }
     
-    public async Task<FindMessagesResponse> Handle(FindMessagesCommand command, CancellationToken cancellationToken)
+    public async Task<FindMessagesOutput> Handle(FindMessagesCommand command, CancellationToken cancellationToken)
     {
         var userInChatRoom = await _chatService.UserInChatRoom(command.ChatRoomId);
         if (!userInChatRoom)
-            return null;
+            return FindMessagesOutput.Failure(ChatErrors.UserNotInChatRoom);
         
         var messages = await _chatService.GetMessagesOfChatRoom(
             command.ChatRoomId, 
@@ -39,6 +40,6 @@ public class FindMessagesCommandHandler : IRequestHandler<FindMessagesCommand, F
                 $"{message.Sender.FirstName} {message.Sender.LastName}", 
                 message.Sender.Avatar));
 
-        return new FindMessagesResponse(messageList);
+        return FindMessagesOutput.Success(messageList);
     }
 }

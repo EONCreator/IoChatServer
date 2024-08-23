@@ -3,7 +3,7 @@ using IoChatServer.Domain.Entities;
 
 namespace IoChatServer.Application.Commands.Messages.SendMessageCommand;
 
-public class SendMessageCommand : IRequest<SendMessageResponse>
+public class SendMessageCommand : IRequest<SendMessageOutput>
 {
     public Message Message { get; }
 

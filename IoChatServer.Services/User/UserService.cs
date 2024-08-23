@@ -37,7 +37,7 @@ public class UserService : IUserService
 {
     private readonly IJwtUtils _jwtUtils;
     private readonly UserManager<User> _userManager;
-    private IUserService _userServiceImplementation;
+    private readonly IUserService _userServiceImplementation;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public UserService(UserManager<User> userManager, 
