@@ -1,6 +1,6 @@
 using IoChatServer.Domain.Models;
 
-namespace IoChatServer.Application.Commands.Chat.FindUser;
+namespace IoChatServer.Application.Queries.Chat.FindUser;
 
 public class FindUserClientModel
 {

@@ -1,4 +1,3 @@
-using IoChatServer.Application.Commands.Chat.Messages.FindMessagesCommand;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using IoChatServer.Domain.Entities;
@@ -8,15 +7,15 @@ using IoChatServer.Services.Chat;
 using IoChatServer.Services.Hubs;
 using IoChatServer.Services.User;
 
-namespace IoChatServer.Application.Commands.Chat.FindUser;
+namespace IoChatServer.Application.Queries.Chat.FindUser;
 
-public class FindUserCommandHandler : IRequestHandler<FindUserCommand, FindUserOutput>
+public class FindUserQueryHandler : IRequestHandler<FindUserQuery, FindUserOutput>
 {
     private IRepository _repository;
     private IUserService _userService;
     private IChatService _chatService;
     
-    public FindUserCommandHandler(
+    public FindUserQueryHandler(
         IRepository repository, 
         IUserService userService,
         IChatService chatService)
@@ -26,10 +25,10 @@ public class FindUserCommandHandler : IRequestHandler<FindUserCommand, FindUserO
         _chatService = chatService;
     }
     
-    public async Task<FindUserOutput> Handle(FindUserCommand command, CancellationToken cancellationToken)
+    public async Task<FindUserOutput> Handle(FindUserQuery query, CancellationToken cancellationToken)
     {
         var user = await _repository.Entity<Domain.Entities.User>()
-            .FirstOrDefaultAsync(u => u.UserName == command.UserName);
+            .FirstOrDefaultAsync(u => u.UserName == query.UserName);
         
         if (user == null)
             return FindUserOutput.Failure(UserErrors.NotFound);

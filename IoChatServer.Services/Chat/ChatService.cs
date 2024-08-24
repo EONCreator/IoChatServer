@@ -116,7 +116,7 @@ public class ChatService : IChatService
         var userId = await _userService.GetCurrentUserId();
 
         var currentUser = await _repository.Entity<User>()
-            .Include(u => u.ChatRooms)
+            .Include(u => u.ChatRooms.OrderByDescending(c => c.LastMessageDate))
             .ThenInclude(c => c.Users)
             .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
         

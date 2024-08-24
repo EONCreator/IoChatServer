@@ -1,7 +1,5 @@
 using IoChatServer.Application.Commands.Authenticate.AuthenticateCommand;
-using IoChatServer.Application.Commands.Messages.SendMessageCommand;
 using IoChatServer.Application.Commands.User.CreateUserCommand;
-using IoChatServer.Application.Commands.User.GetCurrentUser;
 
 namespace IoChatServer.Extensions;
 

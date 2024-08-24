@@ -1,6 +1,6 @@
 using IoChatServer.Domain.Models;
 
-namespace IoChatServer.Application.Commands.User.GetCurrentUser;
+namespace IoChatServer.Application.Queries.User.GetCurrentUser;
 
 using Domain.Entities;
 

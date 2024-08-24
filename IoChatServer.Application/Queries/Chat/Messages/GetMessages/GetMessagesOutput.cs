@@ -1,7 +1,7 @@
 using IoChatServer.Domain.Models;
 using IoChatServer.Services.Chat;
 
-namespace IoChatServer.Application.Commands.Chat.Messages.GetMessagesCommand;
+namespace IoChatServer.Application.Queries.Chat.Messages.GetMessages;
 
 public class GetMessagesOutput : SucceededResult
 {

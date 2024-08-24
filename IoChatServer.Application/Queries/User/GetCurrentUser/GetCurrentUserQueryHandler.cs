@@ -2,18 +2,18 @@ using IoChatServer.Helpers.Errors;
 using MediatR;
 using IoChatServer.Services.User;
 
-namespace IoChatServer.Application.Commands.User.GetCurrentUser;
+namespace IoChatServer.Application.Queries.User.GetCurrentUser;
 
-public class GetCurrentUserCommandHandler : IRequestHandler<GetCurrentUserCommand, GetCurrentUserOutput>
+public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, GetCurrentUserOutput>
 {
     private IUserService _userService;
     
-    public GetCurrentUserCommandHandler(IUserService userService)
+    public GetCurrentUserQueryHandler(IUserService userService)
     {
         _userService = userService;
     }
     
-    public async Task<GetCurrentUserOutput> Handle(GetCurrentUserCommand command, CancellationToken cancellationToken)
+    public async Task<GetCurrentUserOutput> Handle(GetCurrentUserQuery query, CancellationToken cancellationToken)
     {
         var user = await _userService.GetCurrentUser();
         if (user == null)

@@ -2,7 +2,7 @@ using MediatR;
 
 namespace IoChatServer.Application.Commands.Chat.GetChatRooms;
 
-public class GetChatRoomsCommand : IRequest<GetChatRoomsOutput>
+public class GetChatRoomsQuery : IRequest<GetChatRoomsOutput>
 {
     
 }

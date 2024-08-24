@@ -1,25 +1,20 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using IoChatServer.Application.Commands.Chat.Messages.GetMessagesCommand;
-using IoChatServer.Domain.Entities;
-using IoChatServer.Domain.Repositories;
 using IoChatServer.Helpers.Errors;
 using IoChatServer.Services.Chat;
-using IoChatServer.Services.User;
 
-namespace IoChatServer.Application.Commands.Chat.Messages.FindMessagesCommand;
+namespace IoChatServer.Application.Queries.Chat.Messages.FindMessages;
 
-public class FindMessagesCommandHandler : IRequestHandler<FindMessagesCommand, FindMessagesOutput>
+public class FindMessagesQueryHandler : IRequestHandler<FindMessagesQuery, FindMessagesOutput>
 {
     private IChatService _chatService;
     
-    public FindMessagesCommandHandler(
+    public FindMessagesQueryHandler(
         IChatService chatService)
     {
         _chatService = chatService;
     }
     
-    public async Task<FindMessagesOutput> Handle(FindMessagesCommand command, CancellationToken cancellationToken)
+    public async Task<FindMessagesOutput> Handle(FindMessagesQuery command, CancellationToken cancellationToken)
     {
         var userInChatRoom = await _chatService.UserInChatRoom(command.ChatRoomId);
         if (!userInChatRoom)

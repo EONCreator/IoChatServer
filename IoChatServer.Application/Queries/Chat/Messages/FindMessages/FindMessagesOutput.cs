@@ -1,7 +1,7 @@
 using IoChatServer.Domain.Models;
 using IoChatServer.Services.Chat;
 
-namespace IoChatServer.Application.Commands.Chat.Messages.FindMessagesCommand;
+namespace IoChatServer.Application.Queries.Chat.Messages.FindMessages;
 
 public class FindMessagesOutput : SucceededResult
 {

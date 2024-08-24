@@ -17,4 +17,10 @@
       <ProjectReference Include="..\IoChatServer.Services\IoChatServer.Services.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Queries\Chat\ChatRooms" />
+      <Folder Include="Queries\Chat\Messages" />
+      <Folder Include="Queries\User" />
+    </ItemGroup>
+
 </Project>

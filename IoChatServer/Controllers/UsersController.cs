@@ -8,7 +8,7 @@ using IoChatServer.Domain.Repositories;
 using IoChatServer.Primitives;
 using IoChatServer.Application.Commands.Authenticate.AuthenticateCommand;
 using IoChatServer.Application.Commands.User.CreateUserCommand;
-using IoChatServer.Application.Commands.User.GetCurrentUser;
+using IoChatServer.Application.Queries.User.GetCurrentUser;
 
 namespace IoChatServer.Controllers;
 
@@ -90,5 +90,5 @@ public class UsersController : BaseController<User>
     /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
-        => Ok(await _mediator.Send(new GetCurrentUserCommand(), cancellationToken));
+        => Ok(await _mediator.Send(new GetCurrentUserQuery(), cancellationToken));
 }
